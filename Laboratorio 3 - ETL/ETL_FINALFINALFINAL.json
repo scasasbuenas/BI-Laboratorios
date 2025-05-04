@@ -3257,4 +3257,4 @@
 	"hasBeenSaved": false,
 	"usageProfileName": null,
 	"redshift-s3-select": "s3://aws-glue-assets-975050117748-us-east-1/temporary/"
-}
+} 
