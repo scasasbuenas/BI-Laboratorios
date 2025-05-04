@@ -1,0 +1,3260 @@
+{
+	"jobConfig": {
+		"name": "ETL",
+		"description": "",
+		"role": "arn:aws:iam::975050117748:role/LabRole",
+		"command": "glueetl",
+		"version": "4.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 10,
+		"maxCapacity": 10,
+		"jobRunQueuingEnabled": false,
+		"maxRetries": 0,
+		"timeout": 480,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "Job final.py",
+		"scriptLocation": "s3://aws-glue-assets-975050117748-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [],
+		"tags": [],
+		"jobMode": "VISUAL_MODE",
+		"createdOn": "2025-05-02T14:59:45.844Z",
+		"developerMode": false,
+		"connectionsList": [
+			"Redshift connection"
+		],
+		"temporaryDirectory": "s3://aws-glue-assets-975050117748-us-east-1/temporary/",
+		"glueHiveMetastore": true,
+		"etlAutoTuning": true,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"pythonPath": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_common.py,s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-975050117748-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null
+	},
+	"dag": {
+		"node-1682700934837": {
+			"nodeId": "node-1682700934837",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682700370511"
+			],
+			"name": "Generate OrderDates Dimension PK",
+			"generatedNodeName": "GenerateOrderDatesDimensionPK_node1682700934837",
+			"classification": "Transform",
+			"type": "DynamicTransform",
+			"parameters": [
+				{
+					"name": "colName",
+					"value": [
+						"OrderDateUUID"
+					],
+					"isOptional": true,
+					"type": "str",
+					"listType": null
+				}
+			],
+			"functionName": "gs_uuid",
+			"path": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+			"version": "1.0.0",
+			"transformName": "gs_uuid",
+			"outputSchemas": [
+				[
+					{
+						"key": "orderdate",
+						"fullPath": [
+							"orderdate"
+						],
+						"type": "date"
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682701567111": {
+			"nodeId": "node-1682701567111",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745377262933",
+				"node-1682700934837"
+			],
+			"name": "Order Join OrderDates",
+			"generatedNodeName": "OrderJoinOrderDates_node1682701567111",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1745377262933",
+					"keys": [
+						"orderdate_l"
+					]
+				},
+				{
+					"from": "node-1682700934837",
+					"keys": [
+						"orderdate"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "orderdate_l",
+						"fullPath": [
+							"orderdate_l"
+						],
+						"type": "date"
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "orderdate",
+						"fullPath": [
+							"orderdate"
+						],
+						"type": "date"
+					}
+				]
+			]
+		},
+		"node-1682702317281": {
+			"nodeId": "node-1682702317281",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682700934837"
+			],
+			"name": "Load OrderDates Dimension Table",
+			"generatedNodeName": "LoadOrderDatesDimensionTable_node1682702317281",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "dim_orderdates",
+					"label": "dim_orderdates",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://uniandes-bi-lab-3-g-32-202510-source",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "orderdate",
+						"label": "orderdate",
+						"description": "DATE"
+					},
+					{
+						"value": "OrderDateUUID",
+						"label": "OrderDateUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.dim_orderdates_temp_9r2n0c",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745377139836": {
+			"nodeId": "node-1745377139836",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682698771061"
+			],
+			"name": "Select OrderDate Column",
+			"generatedNodeName": "SelectOrderDateColumn_node1745377139836",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerid",
+					"fromPath": [
+						"customerid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "salespersonpersonid",
+					"fromPath": [
+						"salespersonpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickedbypersonid",
+					"fromPath": [
+						"pickedbypersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "contactpersonid",
+					"fromPath": [
+						"contactpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "backorderorderid",
+					"fromPath": [
+						"backorderorderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderdate",
+					"fromPath": [
+						"orderdate"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "expecteddeliverydate",
+					"fromPath": [
+						"expecteddeliverydate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerpurchaseordernumber",
+					"fromPath": [
+						"customerpurchaseordernumber"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "isundersupplybackordered",
+					"fromPath": [
+						"isundersupplybackordered"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "comments",
+					"fromPath": [
+						"comments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "deliveryinstructions",
+					"fromPath": [
+						"deliveryinstructions"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickingcompletedwhen",
+					"fromPath": [
+						"pickingcompletedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedwhen",
+					"fromPath": [
+						"lasteditedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1": {
+			"nodeId": "node-1",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract StockItems",
+			"generatedNodeName": "ExtractStockItems_node1",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://bi-lab-3-santiago/data_StockItems.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://bi-lab-3-santiago/data_StockItems.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "supplierid",
+						"fullPath": [
+							"supplierid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "outerpackageid",
+						"fullPath": [
+							"outerpackageid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "brand",
+						"fullPath": [
+							"brand"
+						],
+						"type": "string"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "leadtimedays",
+						"fullPath": [
+							"leadtimedays"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantityperouter",
+						"fullPath": [
+							"quantityperouter"
+						],
+						"type": "string"
+					},
+					{
+						"key": "ischillerstock",
+						"fullPath": [
+							"ischillerstock"
+						],
+						"type": "string"
+					},
+					{
+						"key": "barcode",
+						"fullPath": [
+							"barcode"
+						],
+						"type": "string"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "string"
+					},
+					{
+						"key": "recommendedretailprice",
+						"fullPath": [
+							"recommendedretailprice"
+						],
+						"type": "string"
+					},
+					{
+						"key": "typicalweightperunit",
+						"fullPath": [
+							"typicalweightperunit"
+						],
+						"type": "string"
+					},
+					{
+						"key": "marketingcomments",
+						"fullPath": [
+							"marketingcomments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "internalcomments",
+						"fullPath": [
+							"internalcomments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "photo",
+						"fullPath": [
+							"photo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "customfields",
+						"fullPath": [
+							"customfields"
+						],
+						"type": "string"
+					},
+					{
+						"key": "tags",
+						"fullPath": [
+							"tags"
+						],
+						"type": "string"
+					},
+					{
+						"key": "searchdetails",
+						"fullPath": [
+							"searchdetails"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string"
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "string"
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"inferSchemaChanged": true
+		},
+		"node-1682567892610": {
+			"nodeId": "node-1682567892610",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745376782926"
+			],
+			"name": "Generate StockItems Dimension PK",
+			"generatedNodeName": "GenerateStockItemsDimensionPK_node1682567892610",
+			"classification": "Transform",
+			"type": "DynamicTransform",
+			"parameters": [
+				{
+					"name": "colName",
+					"value": [
+						"StockItemUUID"
+					],
+					"isOptional": true,
+					"type": "str",
+					"listType": null
+				}
+			],
+			"functionName": "gs_uuid",
+			"path": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+			"version": "1.0.0",
+			"transformName": "gs_uuid",
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-3": {
+			"nodeId": "node-3",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682567892610"
+			],
+			"name": "Load StockItems Dimension Table",
+			"generatedNodeName": "LoadStockItemsDimensionTable_node3",
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"streamingBatchInterval": 100,
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"connection": {
+					"value": "Redshift connection",
+					"label": "Redshift connection",
+					"description": "No description available. Version: 2"
+				},
+				"schema": {
+					"value": "public",
+					"label": "public",
+					"description": null
+				},
+				"catalogDatabase": null,
+				"catalogRedshiftTable": null,
+				"catalogRedshiftSchema": null,
+				"table": {
+					"value": "dim_stockitems",
+					"label": "dim_stockitems",
+					"description": null
+				},
+				"catalogTable": null,
+				"tempDir": "s3://uniandes-bi-lab-3-g-32-202510-source",
+				"iamRole": null,
+				"sampleQuery": null,
+				"preAction": null,
+				"postAction": null,
+				"action": "drop",
+				"tableSchema": [
+					{
+						"value": "stockitemid",
+						"label": "stockitemid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "stockitemname",
+						"label": "stockitemname",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "colorid",
+						"label": "colorid",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "unitpackageid",
+						"label": "unitpackageid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "size",
+						"label": "size",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "unitprice",
+						"label": "unitprice",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "StockItemUUID",
+						"label": "StockItemUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"selectedColumns": [],
+				"crawlerConnection": null,
+				"tablePrefix": null,
+				"upsert": false,
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"mergeClause": null,
+				"stagingTable": "public.dim_stockitems_temp_tv3x6p",
+				"advancedOptions": []
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745376782926": {
+			"nodeId": "node-1745376782926",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1"
+			],
+			"name": "Filter StockItems Columns",
+			"generatedNodeName": "FilterStockItemsColumns_node1745376782926",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "supplierid",
+					"fromPath": [
+						"supplierid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitpackageid",
+					"fromPath": [
+						"unitpackageid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "outerpackageid",
+					"fromPath": [
+						"outerpackageid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "brand",
+					"fromPath": [
+						"brand"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "leadtimedays",
+					"fromPath": [
+						"leadtimedays"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "quantityperouter",
+					"fromPath": [
+						"quantityperouter"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "ischillerstock",
+					"fromPath": [
+						"ischillerstock"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "barcode",
+					"fromPath": [
+						"barcode"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "recommendedretailprice",
+					"fromPath": [
+						"recommendedretailprice"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "typicalweightperunit",
+					"fromPath": [
+						"typicalweightperunit"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "marketingcomments",
+					"fromPath": [
+						"marketingcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "photo",
+					"fromPath": [
+						"photo"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customfields",
+					"fromPath": [
+						"customfields"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "tags",
+					"fromPath": [
+						"tags"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "searchdetails",
+					"fromPath": [
+						"searchdetails"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "validfrom",
+					"fromPath": [
+						"validfrom"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "validto",
+					"fromPath": [
+						"validto"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					}
+				]
+			]
+		},
+		"node-1745377262933": {
+			"nodeId": "node-1745377262933",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682698771061"
+			],
+			"name": "Filter Orders Columns",
+			"generatedNodeName": "FilterOrdersColumns_node1745377262933",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "customerid",
+					"fromPath": [
+						"customerid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "salespersonpersonid",
+					"fromPath": [
+						"salespersonpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickedbypersonid",
+					"fromPath": [
+						"pickedbypersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "contactpersonid",
+					"fromPath": [
+						"contactpersonid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "backorderorderid",
+					"fromPath": [
+						"backorderorderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderdate_l",
+					"fromPath": [
+						"orderdate"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "expecteddeliverydate",
+					"fromPath": [
+						"expecteddeliverydate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "customerpurchaseordernumber",
+					"fromPath": [
+						"customerpurchaseordernumber"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "isundersupplybackordered",
+					"fromPath": [
+						"isundersupplybackordered"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "comments",
+					"fromPath": [
+						"comments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "deliveryinstructions",
+					"fromPath": [
+						"deliveryinstructions"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "pickingcompletedwhen",
+					"fromPath": [
+						"pickingcompletedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "lasteditedwhen",
+					"fromPath": [
+						"lasteditedwhen"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1745377484611": {
+			"nodeId": "node-1745377484611",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682701567111"
+			],
+			"name": "Rename and Filter Order-OrderDates Columns",
+			"generatedNodeName": "RenameandFilterOrderOrderDatesColumns_node1745377484611",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "OrderDate",
+					"fromPath": [
+						"OrderDate"
+					],
+					"toType": "date",
+					"fromType": "date",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "OrderDateUUID",
+					"fromPath": [
+						"OrderDateUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderid_r",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "orderdate_l",
+					"fromPath": [
+						"orderdate_l"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1746199417225": {
+			"nodeId": "node-1746199417225",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682645044112"
+			],
+			"name": "Add Measure",
+			"generatedNodeName": "AddMeasure_node1746199417225",
+			"classification": "Transform",
+			"type": "SqlCode",
+			"sqlAliases": [
+				{
+					"from": "node-1682645044112",
+					"alias": "orderlines"
+				}
+			],
+			"outputSchemas": [
+				[
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "int"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "double"
+					},
+					{
+						"key": "totalprice",
+						"fullPath": [
+							"totalprice"
+						],
+						"type": "double"
+					}
+				]
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"sqlQuery": "select\n    orderlines.*,\n    orderlines.quantity * orderlines.unitprice AS totalprice\nfrom\n    orderlines",
+			"codeGenVersion": 2
+		},
+		"node-1682644044063": {
+			"nodeId": "node-1682644044063",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract OrderLines",
+			"generatedNodeName": "ExtractOrderLines_node1682644044063",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://bi-lab-3-santiago/data_OrderLines.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://bi-lab-3-santiago/data_OrderLines.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"outputSchemas": [
+				[
+					{
+						"key": "orderlineid",
+						"fullPath": [
+							"orderlineid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "description",
+						"fullPath": [
+							"description"
+						],
+						"type": "string"
+					},
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "string"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "string"
+					},
+					{
+						"key": "pickedquantity",
+						"fullPath": [
+							"pickedquantity"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"inferSchemaChanged": true
+		},
+		"node-1682645044112": {
+			"nodeId": "node-1682645044112",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682644044063"
+			],
+			"name": "Filter OrderLines Columns",
+			"generatedNodeName": "FilterOrderLinesColumns_node1682645044112",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "orderlineid",
+					"fromPath": [
+						"orderlineid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "description",
+					"fromPath": [
+						"description"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "packagetypeid",
+					"fromPath": [
+						"packagetypeid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "quantity",
+					"fromPath": [
+						"quantity"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "double",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "pickedquantity",
+					"fromPath": [
+						"pickedquantity"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1682700370511": {
+			"nodeId": "node-1682700370511",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1745377139836"
+			],
+			"name": "Drop OrderDate Duplicates",
+			"generatedNodeName": "DropOrderDateDuplicates_node1682700370511",
+			"classification": "Transform",
+			"type": "DropDuplicates",
+			"parentsValid": true,
+			"calculatedType": "",
+			"columns": [],
+			"codeGenVersion": 2
+		},
+		"node-1682698771061": {
+			"nodeId": "node-1682698771061",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "Extract Orders",
+			"generatedNodeName": "ExtractOrders_node1682698771061",
+			"classification": "DataSource",
+			"type": "S3",
+			"isCatalog": false,
+			"format": "csv",
+			"paths": [
+				"s3://bi-lab-3-santiago/data_Orders.csv"
+			],
+			"compressionType": null,
+			"exclusions": [],
+			"groupFiles": null,
+			"groupSize": null,
+			"recurse": null,
+			"maxBand": null,
+			"maxFilesInBand": null,
+			"additionalOptions": {
+				"boundedSize": null,
+				"boundedFiles": null,
+				"enableSamplePath": false,
+				"samplePath": "s3://bi-lab-3-santiago/data_Orders.csv",
+				"boundedOption": null
+			},
+			"separator": ";",
+			"escaper": "",
+			"quoteChar": "\"",
+			"multiline": null,
+			"withHeader": true,
+			"writeHeader": null,
+			"skipFirst": null,
+			"outputSchemas": [
+				[
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "customerid",
+						"fullPath": [
+							"customerid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "salespersonpersonid",
+						"fullPath": [
+							"salespersonpersonid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "pickedbypersonid",
+						"fullPath": [
+							"pickedbypersonid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "contactpersonid",
+						"fullPath": [
+							"contactpersonid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "backorderorderid",
+						"fullPath": [
+							"backorderorderid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderdate",
+						"fullPath": [
+							"orderdate"
+						],
+						"type": "string"
+					},
+					{
+						"key": "expecteddeliverydate",
+						"fullPath": [
+							"expecteddeliverydate"
+						],
+						"type": "string"
+					},
+					{
+						"key": "customerpurchaseordernumber",
+						"fullPath": [
+							"customerpurchaseordernumber"
+						],
+						"type": "string"
+					},
+					{
+						"key": "isundersupplybackordered",
+						"fullPath": [
+							"isundersupplybackordered"
+						],
+						"type": "string"
+					},
+					{
+						"key": "comments",
+						"fullPath": [
+							"comments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "deliveryinstructions",
+						"fullPath": [
+							"deliveryinstructions"
+						],
+						"type": "string"
+					},
+					{
+						"key": "internalcomments",
+						"fullPath": [
+							"internalcomments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "pickingcompletedwhen",
+						"fullPath": [
+							"pickingcompletedwhen"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedwhen",
+						"fullPath": [
+							"lasteditedwhen"
+						],
+						"type": "string"
+					}
+				]
+			],
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"inferSchemaChanged": true
+		},
+		"node-1682702861653": {
+			"nodeId": "node-1682702861653",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682644347781",
+				"node-1745377484611"
+			],
+			"name": "OrderLines-StockItems Join OrderDates",
+			"generatedNodeName": "OrderLinesStockItemsJoinOrderDates_node1682702861653",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1682644347781",
+					"keys": [
+						"orderid"
+					]
+				},
+				{
+					"from": "node-1745377484611",
+					"keys": [
+						"orderid_r"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".stockitemid",
+						"fullPath": [
+							".stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "totalprice",
+						"fullPath": [
+							"totalprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid_r",
+						"fullPath": [
+							"orderid_r"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".unitprice",
+						"fullPath": [
+							".unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "double"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					}
+				]
+			]
+		},
+		"node-1682644347781": {
+			"nodeId": "node-1682644347781",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1682567892610",
+				"node-1746199417225"
+			],
+			"name": "OrderLines Join StockItems",
+			"generatedNodeName": "OrderLinesJoinStockItems_node1682644347781",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1682567892610",
+					"keys": [
+						"stockitemid"
+					]
+				},
+				{
+					"from": "node-1746199417225",
+					"keys": [
+						"stockitemid"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".stockitemid",
+						"fullPath": [
+							".stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "totalprice",
+						"fullPath": [
+							"totalprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".unitprice",
+						"fullPath": [
+							".unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "double"
+					}
+				]
+			]
+		},
+		"node-1746283447839": {
+			"classification": "DataSource",
+			"type": "S3",
+			"name": "Extract PackageTypes",
+			"inputs": [],
+			"isCatalog": false,
+			"recurse": true,
+			"paths": [
+				"s3://bi-lab-3-santiago/data_StockItems.csv"
+			],
+			"additionalOptions": {
+				"enableSamplePath": false,
+				"samplePath": "s3://bi-lab-3-santiago/data_StockItems.csv"
+			},
+			"inferSchemaChanged": true,
+			"format": "csv",
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/s3.2a166713.svg",
+			"separator": ";",
+			"quoteChar": "\"",
+			"withHeader": true,
+			"escaper": "",
+			"generatedNodeName": "ExtractPackageTypes_node1746283447839",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "supplierid",
+						"fullPath": [
+							"supplierid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "outerpackageid",
+						"fullPath": [
+							"outerpackageid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "brand",
+						"fullPath": [
+							"brand"
+						],
+						"type": "string"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "leadtimedays",
+						"fullPath": [
+							"leadtimedays"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantityperouter",
+						"fullPath": [
+							"quantityperouter"
+						],
+						"type": "string"
+					},
+					{
+						"key": "ischillerstock",
+						"fullPath": [
+							"ischillerstock"
+						],
+						"type": "string"
+					},
+					{
+						"key": "barcode",
+						"fullPath": [
+							"barcode"
+						],
+						"type": "string"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "string"
+					},
+					{
+						"key": "recommendedretailprice",
+						"fullPath": [
+							"recommendedretailprice"
+						],
+						"type": "string"
+					},
+					{
+						"key": "typicalweightperunit",
+						"fullPath": [
+							"typicalweightperunit"
+						],
+						"type": "string"
+					},
+					{
+						"key": "marketingcomments",
+						"fullPath": [
+							"marketingcomments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "internalcomments",
+						"fullPath": [
+							"internalcomments"
+						],
+						"type": "string"
+					},
+					{
+						"key": "photo",
+						"fullPath": [
+							"photo"
+						],
+						"type": "string"
+					},
+					{
+						"key": "customfields",
+						"fullPath": [
+							"customfields"
+						],
+						"type": "string"
+					},
+					{
+						"key": "tags",
+						"fullPath": [
+							"tags"
+						],
+						"type": "string"
+					},
+					{
+						"key": "searchdetails",
+						"fullPath": [
+							"searchdetails"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "string"
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "string"
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "string"
+					}
+				]
+			]
+		},
+		"node-1746284506138": {
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"name": "Change Package Schema",
+			"inputs": [
+				"node-1746283447839"
+			],
+			"mapping": [
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "supplierid",
+					"fromPath": [
+						"supplierid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "unitpackageid",
+					"fromPath": [
+						"unitpackageid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "outerpackageid",
+					"fromPath": [
+						"outerpackageid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "brand",
+					"fromPath": [
+						"brand"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "leadtimedays",
+					"fromPath": [
+						"leadtimedays"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "quantityperouter",
+					"fromPath": [
+						"quantityperouter"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "ischillerstock",
+					"fromPath": [
+						"ischillerstock"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "barcode",
+					"fromPath": [
+						"barcode"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "recommendedretailprice",
+					"fromPath": [
+						"recommendedretailprice"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "typicalweightperunit",
+					"fromPath": [
+						"typicalweightperunit"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "marketingcomments",
+					"fromPath": [
+						"marketingcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "internalcomments",
+					"fromPath": [
+						"internalcomments"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "photo",
+					"fromPath": [
+						"photo"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "customfields",
+					"fromPath": [
+						"customfields"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "tags",
+					"fromPath": [
+						"tags"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "searchdetails",
+					"fromPath": [
+						"searchdetails"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "int",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "validfrom",
+					"fromPath": [
+						"validfrom"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "validto",
+					"fromPath": [
+						"validto"
+					],
+					"toType": "date",
+					"fromType": "string",
+					"dropped": false
+				}
+			],
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/Apply-mapping.2595af12.svg",
+			"generatedNodeName": "ChangePackageSchema_node1746284506138",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "packagetypename",
+						"fullPath": [
+							"packagetypename"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "int"
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "date"
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "date"
+					}
+				]
+			]
+		},
+		"node-1746284540905": {
+			"classification": "Transform",
+			"type": "DynamicTransform",
+			"name": "Package UUID",
+			"inputs": [
+				"node-1746284506138"
+			],
+			"transformName": "gs_uuid",
+			"path": "s3://aws-glue-studio-transforms-510798373988-prod-us-east-1/gs_uuid.py",
+			"functionName": "gs_uuid",
+			"version": "1.0.0",
+			"parameters": [
+				{
+					"name": "colName",
+					"displayName": "UUID Column name",
+					"isOptional": true,
+					"type": "str",
+					"description": "Name to use for the new column, by default: uuid.",
+					"index": 0,
+					"value": "PackageUUID"
+				}
+			],
+			"label": "UUID",
+			"displayName": "UUID",
+			"description": "Generate a 36 character Universally Unique Identifier for each row",
+			"lastModified": "2025-04-30T17:44:35.000Z",
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/generic-transform.e5360da7.svg",
+			"generatedNodeName": "PackageUUID_node1746284540905",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "packagetypename",
+						"fullPath": [
+							"packagetypename"
+						],
+						"type": "string"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "int"
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "date"
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "date"
+					},
+					{
+						"key": "PackageUUID",
+						"fullPath": [
+							"PackageUUID"
+						],
+						"type": "string"
+					}
+				]
+			]
+		},
+		"node-1746284828549": {
+			"classification": "Transform",
+			"type": "Join",
+			"name": "Package Join",
+			"inputs": [
+				"node-1682702861653",
+				"node-1746284540905"
+			],
+			"joinType": "equijoin",
+			"columns": [
+				{
+					"from": "node-1682702861653",
+					"keys": [
+						"unitpackageid"
+					]
+				},
+				{
+					"from": "node-1746284540905",
+					"keys": [
+						"packagetypeid"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/Join.493120c2.svg",
+			"generatedNodeName": "PackageJoin_node1746284828549",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "packagetypename",
+						"fullPath": [
+							"packagetypename"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitpackageid",
+						"fullPath": [
+							"unitpackageid"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".stockitemid",
+						"fullPath": [
+							".stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "stockitemid",
+						"fullPath": [
+							"stockitemid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "lasteditedby",
+						"fullPath": [
+							"lasteditedby"
+						],
+						"type": "int"
+					},
+					{
+						"key": "validto",
+						"fullPath": [
+							"validto"
+						],
+						"type": "date"
+					},
+					{
+						"key": "validfrom",
+						"fullPath": [
+							"validfrom"
+						],
+						"type": "date"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid",
+						"fullPath": [
+							"orderid"
+						],
+						"type": "int"
+					},
+					{
+						"key": "PackageUUID",
+						"fullPath": [
+							"PackageUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "totalprice",
+						"fullPath": [
+							"totalprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "orderid_r",
+						"fullPath": [
+							"orderid_r"
+						],
+						"type": "int"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "int"
+					},
+					{
+						"key": ".unitprice",
+						"fullPath": [
+							".unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "double"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "packagetypeid",
+						"fullPath": [
+							"packagetypeid"
+						],
+						"type": "int"
+					}
+				]
+			]
+		},
+		"node-1746285262385": {
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"name": "Change Schema",
+			"inputs": [
+				"node-1746284828549"
+			],
+			"mapping": [
+				{
+					"toKey": "stockitemid",
+					"fromPath": [
+						"stockitemid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false
+				},
+				{
+					"toKey": "stockitemname",
+					"fromPath": [
+						"stockitemname"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "colorid",
+					"fromPath": [
+						"colorid"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "unitpackageid",
+					"fromPath": [
+						"unitpackageid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false
+				},
+				{
+					"toKey": "size",
+					"fromPath": [
+						"size"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "unitprice",
+					"fromPath": [
+						"unitprice"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false
+				},
+				{
+					"toKey": "StockItemUUID",
+					"fromPath": [
+						"StockItemUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "orderid",
+					"fromPath": [
+						"orderid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false
+				},
+				{
+					"toKey": ".stockitemid",
+					"fromPath": [
+						".stockitemid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false
+				},
+				{
+					"toKey": "quantity",
+					"fromPath": [
+						"quantity"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": false
+				},
+				{
+					"toKey": ".unitprice",
+					"fromPath": [
+						".unitprice"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": true
+				},
+				{
+					"toKey": "taxrate",
+					"fromPath": [
+						"taxrate"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false
+				},
+				{
+					"toKey": "totalprice",
+					"fromPath": [
+						"totalprice"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false
+				},
+				{
+					"toKey": "OrderDateUUID",
+					"fromPath": [
+						"OrderDateUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "orderid_r",
+					"fromPath": [
+						"orderid_r"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true
+				},
+				{
+					"toKey": "packagetypeid",
+					"fromPath": [
+						"packagetypeid"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true
+				},
+				{
+					"toKey": "packagetypename",
+					"fromPath": [
+						"packagetypename"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true
+				},
+				{
+					"toKey": "lasteditedby",
+					"fromPath": [
+						"lasteditedby"
+					],
+					"toType": "int",
+					"fromType": "int",
+					"dropped": true
+				},
+				{
+					"toKey": "validfrom",
+					"fromPath": [
+						"validfrom"
+					],
+					"toType": "date",
+					"fromType": "date",
+					"dropped": true
+				},
+				{
+					"toKey": "validto",
+					"fromPath": [
+						"validto"
+					],
+					"toType": "date",
+					"fromType": "date",
+					"dropped": true
+				},
+				{
+					"toKey": "PackageUUID",
+					"fromPath": [
+						"PackageUUID"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				}
+			],
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/Apply-mapping.2595af12.svg",
+			"generatedNodeName": "ChangeSchema_node1746285262385",
+			"codeGenVersion": 2,
+			"outputSchemas": [
+				[
+					{
+						"key": "stockitemname",
+						"fullPath": [
+							"stockitemname"
+						],
+						"type": "string"
+					},
+					{
+						"key": "colorid",
+						"fullPath": [
+							"colorid"
+						],
+						"type": "string"
+					},
+					{
+						"key": "size",
+						"fullPath": [
+							"size"
+						],
+						"type": "string"
+					},
+					{
+						"key": "unitprice",
+						"fullPath": [
+							"unitprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "StockItemUUID",
+						"fullPath": [
+							"StockItemUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "quantity",
+						"fullPath": [
+							"quantity"
+						],
+						"type": "int"
+					},
+					{
+						"key": "taxrate",
+						"fullPath": [
+							"taxrate"
+						],
+						"type": "double"
+					},
+					{
+						"key": "totalprice",
+						"fullPath": [
+							"totalprice"
+						],
+						"type": "double"
+					},
+					{
+						"key": "OrderDateUUID",
+						"fullPath": [
+							"OrderDateUUID"
+						],
+						"type": "string"
+					},
+					{
+						"key": "PackageUUID",
+						"fullPath": [
+							"PackageUUID"
+						],
+						"type": "string"
+					}
+				]
+			]
+		},
+		"node-1746285411496": {
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"name": "Amazon Redshift",
+			"inputs": [
+				"node-1746285262385"
+			],
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"action": "drop",
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"upsert": false,
+				"selectedColumns": [],
+				"tableSchema": [
+					{
+						"value": "stockitemid",
+						"label": "stockitemid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "stockitemname",
+						"label": "stockitemname",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "colorid",
+						"label": "colorid",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "unitpackageid",
+						"label": "unitpackageid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "size",
+						"label": "size",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "unitprice",
+						"label": "unitprice",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "StockItemUUID",
+						"label": "StockItemUUID",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "orderid",
+						"label": "orderid",
+						"description": "INTEGER"
+					},
+					{
+						"value": ".stockitemid",
+						"label": ".stockitemid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "quantity",
+						"label": "quantity",
+						"description": "INTEGER"
+					},
+					{
+						"value": "taxrate",
+						"label": "taxrate",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "totalprice",
+						"label": "totalprice",
+						"description": "DOUBLE PRECISION"
+					},
+					{
+						"value": "OrderDateUUID",
+						"label": "OrderDateUUID",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "PackageUUID",
+						"label": "PackageUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"tempDir": "s3://aws-glue-assets-975050117748-us-east-1/temporary/",
+				"advancedOptions": [],
+				"connection": {
+					"label": "Redshift connection",
+					"value": "Redshift connection",
+					"description": "No description available. Version: 2",
+					"iconName": "status-positive"
+				},
+				"schema": {
+					"label": "public",
+					"value": "public"
+				},
+				"table": {
+					"label": "fact_orders",
+					"value": "fact_orders"
+				},
+				"stagingTable": "public.fact_orders_temp_fflhtt"
+			},
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/Redshift.29b8248a.svg",
+			"generatedNodeName": "AmazonRedshift_node1746285411496",
+			"codeGenVersion": 2
+		},
+		"node-1746288574738": {
+			"classification": "DataSink",
+			"type": "AmazonRedshift",
+			"name": "Load PackageTypes Dimension",
+			"inputs": [
+				"node-1746284540905"
+			],
+			"data": {
+				"accessType": "connection",
+				"sourceType": "table",
+				"action": "drop",
+				"mergeAction": "simple",
+				"mergeWhenMatched": "update",
+				"mergeWhenNotMatched": "insert",
+				"upsert": false,
+				"selectedColumns": [],
+				"tableSchema": [
+					{
+						"value": "packagetypeid",
+						"label": "packagetypeid",
+						"description": "INTEGER"
+					},
+					{
+						"value": "packagetypename",
+						"label": "packagetypename",
+						"description": "VARCHAR"
+					},
+					{
+						"value": "lasteditedby",
+						"label": "lasteditedby",
+						"description": "INTEGER"
+					},
+					{
+						"value": "validfrom",
+						"label": "validfrom",
+						"description": "DATE"
+					},
+					{
+						"value": "validto",
+						"label": "validto",
+						"description": "DATE"
+					},
+					{
+						"value": "PackageUUID",
+						"label": "PackageUUID",
+						"description": "VARCHAR"
+					}
+				],
+				"tempDir": "s3://aws-glue-assets-975050117748-us-east-1/temporary/",
+				"advancedOptions": [],
+				"connection": {
+					"label": "Redshift connection",
+					"value": "Redshift connection",
+					"description": "No description available. Version: 2",
+					"iconName": "status-positive"
+				},
+				"schema": {
+					"label": "public",
+					"value": "public"
+				},
+				"table": {
+					"label": "dim_packagetypes",
+					"value": "dim_packagetypes"
+				},
+				"stagingTable": "public.dim_packagetypes_temp_0ewx2b"
+			},
+			"iconUrl": "https://a.b.cdn.console.awsstatic.com/a/v1/C54HHTDY5LMTECQQPEXXUFTHSG523J322LOSI6JYXZSPTXUDO7WA/static/media/Redshift.29b8248a.svg",
+			"generatedNodeName": "AmazonRedshift_node1746288574738",
+			"codeGenVersion": 2
+		}
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null,
+	"redshift-s3-select": "s3://aws-glue-assets-975050117748-us-east-1/temporary/"
+}
